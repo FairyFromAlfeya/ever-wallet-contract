@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "mkdir -p dist && func contracts/Wallet.fc -Wdist/Wallet.code.boc | fift",
+    "build": "mkdir -p dist && func -Wdist/Wallet.code.boc contracts/Wallet.fc | fift",
     "test": "ts-mocha -p tsconfig.json tests/**/*.ts --timeout 2000000 --exit"
   },
   "author": "",

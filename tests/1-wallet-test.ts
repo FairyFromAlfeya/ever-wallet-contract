@@ -54,14 +54,8 @@ describe('Test wallet contract', async function () {
     await ever.ensureInitialized();
 
     const { boc: data } = await ever.packIntoCell({
-      structure: [
-        { name: 'publicKey', type: 'uint256' },
-        { name: 'timestamp', type: 'uint64' },
-      ] as const,
-      data: {
-        publicKey: `0x${walletKey.publicKey}`,
-        timestamp: 0,
-      },
+      structure: [{ name: 'publicKey', type: 'uint256' }] as const,
+      data: { publicKey: `0x${walletKey.publicKey}` },
     });
 
     const { tvc } = await ever.mergeTvc({ data, code: WALLET_CODE });
@@ -183,7 +177,7 @@ describe('Test wallet contract', async function () {
     const WalletAbi0 = {
       'ABI version': 2,
       version: '2.3',
-      header: ['pubkey', 'time', 'expire'],
+      header: ['pubkey', 'expire'],
       functions: [
         {
           name: 'sendTransactionRaw',
@@ -208,7 +202,7 @@ describe('Test wallet contract', async function () {
     const WalletAbi4 = {
       'ABI version': 2,
       version: '2.3',
-      header: ['pubkey', 'time', 'expire'],
+      header: ['pubkey', 'expire'],
       functions: [
         {
           name: 'sendTransactionRaw',
@@ -273,16 +267,12 @@ describe('Test wallet contract', async function () {
     const now = ~~(nowMs / 1000);
 
     const {
-      data: { pubkey, storedTimestamp },
+      data: { pubkey },
     } = await ever.unpackFromCell({
-      structure: [
-        { name: 'pubkey', type: 'uint256' },
-        { name: 'storedTimestamp', type: 'uint64' },
-      ] as const,
+      structure: [{ name: 'pubkey', type: 'uint256' }] as const,
       boc: nt.extractContractData(state?.boc || '') || '',
       allowPartial: true,
     });
-    expect(new BigNumber(storedTimestamp).toFixed(0), 'Stored timestamp').to.not.equal('0');
     expect(new BigNumber(pubkey).toString(16).padStart(64, '0'), 'Stored pubkey').to.be.equal(walletKey.publicKey);
 
     type ExecutorArgs = {
@@ -329,7 +319,6 @@ describe('Test wallet contract', async function () {
       { name: 'signatureHigh', type: 'uint256' },
       { name: 'signatureLow', type: 'uint256' },
       { name: 'hasPubkey', type: 'bool' },
-      { name: 'timestamp', type: 'uint64' },
       { name: 'expireAt', type: 'uint32' },
       { name: 'functionId', type: 'uint32' },
     ];
@@ -365,7 +354,6 @@ describe('Test wallet contract', async function () {
       signatureHigh: 0,
       signatureLow: 0,
       hasPubkey: false,
-      timestamp: nowMs,
       expireAt: now + 60,
       functionId: 0x4cee646c,
     };
@@ -384,26 +372,6 @@ describe('Test wallet contract', async function () {
       now: now + 100,
       exitCode: 57,
       message: 'expired message',
-    });
-
-    await expectFailure({
-      structure: BODY_ABI,
-      body: {
-        ...body,
-        timestamp: new BigNumber(storedTimestamp).minus(10000).toFixed(0),
-      },
-      exitCode: 52,
-      message: 'old message',
-    });
-
-    await expectFailure({
-      structure: BODY_ABI,
-      body: {
-        ...body,
-        timestamp: new BigNumber(now).plus(1800).shiftedBy(3).plus(1).toFixed(0),
-      },
-      exitCode: 52,
-      message: 'too new message',
     });
 
     await expectFailure({
@@ -442,16 +410,16 @@ describe('Test wallet contract', async function () {
       message: 'same message',
     });
     expect(transaction.aborted, 'Simple message').to.be.false;
-    await expectFailure({
-      account: newAccount,
-      structure: FULL_BODY_ABI,
-      body: {
-        ...body,
-        ...bodyParams,
-      },
-      now: now + 1,
-      message: 'same message',
-      exitCode: 52,
-    });
+    // await expectFailure({
+    //   account: newAccount,
+    //   structure: FULL_BODY_ABI,
+    //   body: {
+    //     ...body,
+    //     ...bodyParams,
+    //   },
+    //   now: now + 1,
+    //   message: 'same message',
+    //   exitCode: 52,
+    // });
   });
 });

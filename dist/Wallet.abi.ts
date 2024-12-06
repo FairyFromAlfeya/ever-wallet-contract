@@ -1,7 +1,7 @@
 export default {
   'ABI version': 2,
   version: '2.3',
-  header: ['pubkey', 'time', 'expire'],
+  header: ['pubkey', 'expire'],
   functions: [
     {
       name: 'sendTransaction',
@@ -26,7 +26,6 @@ export default {
   data: [],
   events: [],
   fields: [
-    { name: '_pubkey', type: 'uint256' },
-    { name: '_timestamp', type: 'uint64' },
+    { name: '_pubkey', type: 'uint256' }
   ],
 } as const;

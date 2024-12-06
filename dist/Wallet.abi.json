@@ -3,7 +3,6 @@
   "version": "2.3",
   "header": [
     "pubkey",
-    "time",
     "expire"
   ],
   "functions": [
@@ -54,10 +53,6 @@
     {
       "name": "_pubkey",
       "type": "uint256"
-    },
-    {
-      "name": "_timestamp",
-      "type": "uint64"
     }
   ]
 }
